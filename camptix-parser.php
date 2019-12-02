@@ -129,7 +129,7 @@ switch ($action) {
             alert("無法簽到，請與系統管理員聯繫！");
         }
 
-        if (file_exists($_POST['camptix_id'] . "-" . $_POST['email'] . ".log")) {
+        if (file_exists('log/' . $_POST['camptix_id'] . "-" . $_POST['email'] . ".log")) {
             alert("注意！" . $_POST['camptix_id'] . " " . $_POST['name'] . " 已重複簽到！");
         } else {
             alert($_POST['camptix_id'] . " " . $_POST['name'] . " 已完成簽到！");
@@ -151,7 +151,12 @@ switch ($action) {
         $r = json_decode($output, true);
 
         if ($r['success']) {
-            file_put_contents($_POST['camptix_id'] . "-" . $_POST['email'] . ".log", $output);
+            if (!is_dir('log'))
+            {
+                mkdir('log');
+            }
+            
+            file_put_contents('log/' . $_POST['camptix_id'] . "-" . $_POST['email'] . ".log", $output);
         }
 
         break;
