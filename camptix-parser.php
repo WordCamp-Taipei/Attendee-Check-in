@@ -49,17 +49,21 @@ switch ($action) {
         $name     = $_POST['name'];
         $email    = $_POST['email'];
         $attended = 0;
+
         foreach ($data as $key => $value) {
             $fullsearch = /*$value['Ticket Buyer Name'] .*/
                 $value['First Name'] . $value['Last Name'];
+
             if (strpos(strtolower($fullsearch), strtolower($name)) !== false && strtolower($value['E-mail Address']) == strtolower($email)) {
                 $resp = $value;
             }
         }
+
         //檢查是否已簽到
         if ($resp !== 0 && file_exists($resp['Attendee ID'] . "-" . $email . ".log")) {
             $attended = 1;
         }
+
         if ($resp === 0) {
             echo "<script>
 		alert('查無此人，請輸入票券註冊時正確的名稱與信箱。 / No such attendee. Please try to remenber your first name and Email in the ticket.');
@@ -75,6 +79,7 @@ switch ($action) {
                 <input type="hidden" name="action" value="search"/>
                 <input class="submit_btn" type="submit" name="submit" value="送出"/>
             </form>
+
             <?php
         } else {
             $holder                   = $resp['First Name'] . " " . $resp['Last Name'];
@@ -131,17 +136,24 @@ switch ($action) {
         }
 
         $url = $config['url'] . '&camptix_id=' . $_POST['camptix_id'];
+
         $ch  = curl_init();
+
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
+
         $output = curl_exec($ch);
+
         curl_close($ch);
+
         $r = json_decode($output, true);
+
         if ($r['success']) {
             file_put_contents($_POST['camptix_id'] . "-" . $_POST['email'] . ".log", $output);
         }
+
         break;
     default:
         ?>
@@ -176,7 +188,6 @@ switch ($action) {
         left: 50%;
         transform: translate(-50%, -50%);
         min-width: 320px;
-
     }
 
     .registered_form input {
