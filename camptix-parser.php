@@ -60,7 +60,7 @@ switch ($action) {
         }
 
         //檢查是否已簽到
-        if ($resp !== 0 && file_exists($resp['Attendee ID'] . "-" . $email . ".log")) {
+        if ($resp !== 0 && file_exists('log/' . $resp['Attendee ID'] . "-" . $email . ".log")) {
             $attended = 1;
         }
 
@@ -155,7 +155,7 @@ switch ($action) {
             {
                 mkdir('log');
             }
-            
+
             file_put_contents('log/' . $_POST['camptix_id'] . "-" . $_POST['email'] . ".log", $output);
         }
 
