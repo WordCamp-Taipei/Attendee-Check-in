@@ -1,5 +1,6 @@
 <?php
 $config = include(dirname(__FILE__) . '/config.php');
+date_default_timezone_set("Asia/Taipei");
 ?>
 
 <!DOCTYPE html>
@@ -92,7 +93,6 @@ switch ($action) {
             $camptix_id               = $resp["Attendee ID"];
             ?>
             <div class="Sign_in">
-                <script type="text/javascript">alert('請把此畫面顯示給工作人員確認報到。/ Please show this screen to staff for check-in.');</script>
                 <div class="Sing_in_content">
                     <?php echo $attended == 1 ? "<div><span style='color:red;'>此人已完成報到！</span></div>" : "" ?>
                     <div><span>購票人：</span><?php echo $buyer; ?></div>
@@ -117,7 +117,13 @@ switch ($action) {
                     </script>
                 </div>
 
-                <button class="checkin_go" onclick="checkin_confirm();">簽到 / Checkin</button>
+                <?php
+                if (date('Y-m-d H:i') >= $config['checkin_at']): ?>
+                    <button class="checkin_go" onclick="checkin_confirm();">簽到 / Checkin</button>
+                <?php else: ?>
+                    <button type="button" class="checkin_go" disabled>尚未開放簽到 / Can't Checkin yet</button>
+                <?php endif; ?>
+
             </div>
 
             <?php
