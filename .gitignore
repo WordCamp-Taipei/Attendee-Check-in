@@ -1,4 +1,2 @@
-.idea
-*.csv
-*.log
-config.php
+# Created by .ignore support plugin (hsz.mobi)
+/log
