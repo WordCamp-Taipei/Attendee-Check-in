@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       camptix
+ * Plugin Name:       wctpe-checkin
  * Plugin URI:        https://example.com/plugins/the-basics/
  * Description:       Handle the basics with this plugin.
  * Version:           1.10.3
@@ -10,30 +10,29 @@
  * Author URI:        https://author.example.com/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       camptix
+ * Text Domain:       wctpe-checkin
  * Domain Path:       /languages
  */
 
-add_action('admin_menu', 'camptix_setup_menu');
+add_action('admin_menu', 'wctpe_checkin_setup_menu');
 
-function camptix_setup_menu()
+function wctpe_checkin_setup_menu()
 {
-    add_menu_page('Camptix Page', 'Camptix', 'manage_options', 'camptix', 'camptix_init');
+    add_menu_page('wctpe checkin Page', 'wctpe checkin', 'manage_options', 'wctpe_checkin', 'wctpe_checkin_init');
 }
 
-function camptix_init()
+function wctpe_checkin_init()
 {
-    camptix_handle_post();
+    wctpe_checkin_handle_post();
     ?>
-    <h1>Hello World!</h1>
     <h2>Upload a File</h2>
     <!-- Form to handle the upload - The enctype value here is very important -->
     <form method="post" enctype="multipart/form-data">
-        <input type='file' id='camptix_upload_pdf' name='camptix_upload_pdf'/>
+        <input type='file' id='wctpe_checkin_upload_pdf' name='wctpe_checkin_upload_pdf'/>
         <?php submit_button('Upload') ?>
     </form>
     <form method="post" action="options.php">
-        <?php settings_fields('myplugin_options_group'); ?>
+        <?php settings_fields('wctpe_checkin_options_group'); ?>
         <h3>設定</h3>
         <table>
             <tr valign="top">
@@ -58,37 +57,30 @@ function camptix_init()
     <?php
 }
 
-function myplugin_register_settings()
+function wctpe_checkin_register_settings()
 {
     add_option('url', '');
     add_option('file', '');
     add_option('checkin_at', '');
     add_option('redirect', '');
-    register_setting('myplugin_options_group', 'url', 'myplugin_callback');
-    register_setting('myplugin_options_group', 'file', 'myplugin_callback');
-    register_setting('myplugin_options_group', 'checkin_at', 'myplugin_callback');
-    register_setting('myplugin_options_group', 'redirect', 'myplugin_callback');
+    register_setting('wctpe_checkin_options_group', 'url', 'wctpe_checkin_callback');
+    register_setting('wctpe_checkin_options_group', 'file', 'wctpe_checkin_callback');
+    register_setting('wctpe_checkin_options_group', 'checkin_at', 'wctpe_checkin_callback');
+    register_setting('wctpe_checkin_options_group', 'redirect', 'wctpe_checkin_callback');
 }
 
-add_action('admin_init', 'myplugin_register_settings');
+add_action('admin_init', 'wctpe_checkin_register_settings');
 
-function myplugin_register_options_page()
-{
-    add_options_page('Page Title', 'Plugin Menu', 'manage_options', 'myplugin', 'myplugin_options_page');
-}
-
-add_action('admin_menu', 'myplugin_register_options_page');
-
-function camptix_handle_post()
+function wctpe_checkin_handle_post()
 {
     // First check if the file appears on the _FILES array
-    if (isset($_FILES['camptix_upload_pdf'])) {
-        $pdf = $_FILES['camptix_upload_pdf'];
+    if (isset($_FILES['wctpe_checkin_upload_pdf'])) {
+        $pdf = $_FILES['wctpe_checkin_upload_pdf'];
 
         // Use the wordpress function to upload
-        // camptix_upload_pdf corresponds to the position in the $_FILES array
+        // wctpe_checkin_upload_pdf corresponds to the position in the $_FILES array
         // 0 means the content is not associated with any other posts
-        $uploaded = media_handle_upload('camptix_upload_pdf', 0);
+        $uploaded = media_handle_upload('wctpe_checkin_upload_pdf', 0);
         // Error checking using WP functions
         if (is_wp_error($uploaded)) {
             echo "Error uploading file: " . $uploaded->get_error_message();
@@ -194,7 +186,7 @@ function complete_registration()
                 $T_Shirt_Size             = $resp["衣服大小 / T-Shirt Size"];
                 $Life_threatening_allergy = $resp["Life-threatening allergy"];
                 $Accessibility_needs      = $resp["Accessibility needs"];
-                $camptix_id               = $resp["Attendee ID"];
+                $wctpe_checkin_id         = $resp["Attendee ID"];
                 ?>
                 <div class="Sign_in">
                     <div class="Sing_in_content">
@@ -209,7 +201,7 @@ function complete_registration()
                         <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="POST" id="checkin">
                             <input type="hidden" name="email" value="<?php echo $resp["E-mail Address"]; ?>">
                             <input type="hidden" name="username" value="<?php echo $holder; ?>">
-                            <input type="hidden" name="camptix_id" value="<?php echo $camptix_id; ?>">
+                            <input type="hidden" name="wctpe_checkin_id" value="<?php echo $wctpe_checkin_id; ?>">
                             <input type="hidden" name="action" value="update"/>
                         </form>
                         <script type="text/javascript">
@@ -239,13 +231,13 @@ function complete_registration()
                 alert("無法簽到，請與系統管理員聯繫！");
             }
 
-            if (file_exists(__DIR__ . '/log/' . $_POST['camptix_id'] . "-" . $_POST['email'] . ".log")) {
-                alert("注意！" . $_POST['camptix_id'] . " " . $_POST['username'] . " 已重複簽到！");
+            if (file_exists(__DIR__ . '/log/' . $_POST['wctpe_checkin_id'] . "-" . $_POST['email'] . ".log")) {
+                alert("注意！" . $_POST['wctpe_checkin_id'] . " " . $_POST['username'] . " 已重複簽到！");
             } else {
-                alert($_POST['camptix_id'] . " " . $_POST['username'] . " 已完成簽到！");
+                alert($_POST['wctpe_checkin_id'] . " " . $_POST['username'] . " 已完成簽到！");
             }
 
-            $url = get_option('url') . '&camptix_id=' . $_POST['camptix_id'];
+            $url = get_option('url') . '&wctpe_checkin_id=' . $_POST['wctpe_checkin_id'];
 
             $ch = curl_init();
 
@@ -265,7 +257,7 @@ function complete_registration()
                     mkdir(__DIR__ . '/log');
                 }
 
-                file_put_contents(__DIR__ . '/log/' . $_POST['camptix_id'] . "-" . $_POST['email'] . ".log", $output);
+                file_put_contents(__DIR__ . '/log/' . $_POST['wctpe_checkin_id'] . "-" . $_POST['email'] . ".log", $output);
             }
 
             break;
@@ -289,7 +281,7 @@ function custom_registration_function()
 }
 
 // The callback function that will replace [book]
-function camptix_shortcode()
+function wctpe_checkin_shortcode()
 {
     ob_start();
     custom_registration_function();
@@ -297,6 +289,6 @@ function camptix_shortcode()
     return ob_get_clean();
 }
 
-//Adding camptix shortcode
+//Adding wctpe_checkin shortcode
 
-add_shortcode('camptix-form', 'camptix_shortcode');
+add_shortcode('wctpe_checkin-form', 'wctpe_checkin_shortcode');
