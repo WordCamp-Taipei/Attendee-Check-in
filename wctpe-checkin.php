@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       wctpe-checkin
- * Plugin URI:        https://example.com/plugins/the-basics/
- * Description:       Handle the basics with this plugin.
+ * Plugin Name:       WCTPE Check-in
+ * Plugin URI:        https://wctpe.tw/
+ * Description:       WordCamp Taipei Check-in Tool
  * Version:           1.10.3
  * Requires at least: 5.2
  * Requires PHP:      7.3
@@ -18,38 +18,40 @@ add_action('admin_menu', 'wctpe_checkin_setup_menu');
 
 function wctpe_checkin_setup_menu()
 {
-    add_menu_page('wctpe checkin Page', 'wctpe checkin', 'manage_options', 'wctpe_checkin', 'wctpe_checkin_init');
+    add_menu_page('WCTPE Check-in Tool', 'WCTPE Check-in', 'manage_options', 'wctpe_checkin', 'wctpe_checkin_init');
 }
 
 function wctpe_checkin_init()
 {
     wctpe_checkin_handle_post();
     ?>
-    <h2>Upload a File</h2>
+    <h1>WCTPE Check-in Tool</h1>
+    <h2>Upload Attendee Data</h2>
     <!-- Form to handle the upload - The enctype value here is very important -->
+    <p>Please visit your official WordCamp site.<br>Go to Tickets ➞ Tools ➞ Export ➞ Export all attendees data to <strong>CSV</strong> file. </p>
     <form method="post" enctype="multipart/form-data">
         <input type='file' id='wctpe_checkin_upload_pdf' name='wctpe_checkin_upload_pdf'/>
         <?php submit_button('Upload') ?>
     </form>
     <form method="post" action="options.php">
         <?php settings_fields('wctpe_checkin_options_group'); ?>
-        <h3>設定</h3>
+        <h3>Settings</h3>
         <table>
             <tr valign="top">
-                <th scope="row"><label for="url">Url</label></th>
-                <td><input type="text" id="url" name="url" value="<?php echo get_option('url'); ?>"/></td>
+                <th scope="row"><label for="url">WordCamp Secret Link</label></th>
+                <td><input type="url" id="url" name="url" value="<?php echo get_option('url'); ?>"/></td>
             </tr>
             <tr valign="top">
-                <th scope="row"><label for="file">File</label></th>
-                <td><input type="text" id="file" name="file" value="<?php echo get_option('file'); ?>"/></td>
+                <th scope="row"><label for="file">Attendee Data File Name</label></th>
+                <td><input type="text" id="file" name="file" value="<?php echo get_option('file'); ?>"/><p>File name not including full URL. (ex. camptix-export-2020-01-01.csv)</p></td>
             </tr>
             <tr valign="top">
-                <th scope="row"><label for="checkin_at">Checkin_at</label></th>
-                <td><input type="text" id="checkin_at" name="checkin_at" value="<?php echo get_option('checkin_at'); ?>"/></td>
+                <th scope="row"><label for="checkin_at">Check-in Starting at</label></th>
+                <td><input type="text" id="checkin_at" name="checkin_at" value="<?php echo get_option('checkin_at'); ?>"/><p>Format：Y-m-d H:i (ex. 2020-01-01 09:00)</p></td>
             </tr>
             <tr valign="top">
-                <th scope="row"><label for="redirect">Redirect</label></th>
-                <td><input type="text" id="redirect" name="redirect" value="<?php echo get_option('redirect'); ?>"/></td>
+                <th scope="row"><label for="redirect">Success Check-in Redirect URL</label></th>
+                <td><input type="url" id="redirect" name="redirect" value="<?php echo get_option('redirect'); ?>"/></td>
             </tr>
         </table>
         <?php submit_button(); ?>
@@ -83,9 +85,9 @@ function wctpe_checkin_handle_post()
         $uploaded = media_handle_upload('wctpe_checkin_upload_pdf', 0);
         // Error checking using WP functions
         if (is_wp_error($uploaded)) {
-            echo "Error uploading file: " . $uploaded->get_error_message();
+            echo "<div class='notice notice-error is-dismissible'><p><strong>Error uploading file: " . $uploaded->get_error_message() . "</strong></p></div>";
         } else {
-            echo "File upload successful!";
+            echo "<div class='notice notice-success is-dismissible'><p><strong>File uploaded successfully!</strong></p></div>";
         }
     }
 }
@@ -108,17 +110,17 @@ function registration_form()
     ?>
     <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
         <div>
-            <label for="username">票券上的姓？ / What\'s your last name?</label>
+            <label for="username">購票姓氏 / Last Name</label>
             <input type="text" name="username" value="" placeholder="Last Name">
         </div>
 
         <div>
-            <label for="email">註冊票券的信箱？ / Which Email you registered the ticket?</label>
+            <label for="email">購票信箱 / Email</label>
             <input type="email" name="email" value="" placeholder="Email">
         </div>
 
         <input type="hidden" name="action" value="search"/>
-        <input type="submit" name="submit" value="送出"/>
+        <input type="submit" name="submit" value="Send"/>
     </form>
     <?php
 }
@@ -174,7 +176,7 @@ function complete_registration()
 
             if ($resp === 0) {
                 echo "<script>
-		alert('查無此人，請輸入票券註冊時正確的名稱與信箱。 / No such attendee. Please try to remenber your first name and Email in the ticket.');
+		alert('查無此人，請輸入票券註冊時正確的姓氏與信箱。Cannot find your ticket information. Please make sure you enter the last name and email you used to purchase the ticket.');
 		</script>";
 
                 registration_form();
@@ -182,22 +184,35 @@ function complete_registration()
                 $holder                   = $resp['First Name'] . " " . $resp['Last Name'];
                 $buyer                    = $resp['Ticket Buyer Name'];
                 $Ticket_Type              = $resp["Ticket Type"];
-                $Food_Preference          = $resp["飲食偏好 / Meal Preference"];
+                $Coupon                   = $resp["Coupon"];
+                $Meal_Preference          = $resp["飲食偏好 / Meal Preference"];
                 $T_Shirt_Size             = $resp["衣服大小 / T-Shirt Size"];
-                $Life_threatening_allergy = $resp["Life-threatening allergy"];
-                $Accessibility_needs      = $resp["Accessibility needs"];
+                $Country                  = $resp["國家 / Country"];
+                $Language                 = $resp["溝通語言 / Language Spoken"];
+                $After_Party              = $resp["你是否會參加會後交流派對？/ Will you attend the After Party?"];
+                $Life_Threatening_Allergy = $resp["Life-threatening allergy"];
+                $Accessibility_Needs      = $resp["Accessibility needs"];
                 $wctpe_checkin_id         = $resp["Attendee ID"];
                 ?>
                 <div class="Sign_in">
                     <div class="Sing_in_content">
                         <?php echo $attended == 1 ? "<div><span style='color:red;'>此人已完成報到！</span></div>" : "" ?>
-                        <div><span>購票人：</span><?php echo $buyer; ?></div>
-                        <div><span>持有人：</span><?php echo $holder; ?></div>
-                        <div><span>票種：</span><?php echo $Ticket_Type; ?></div>
-                        <div><span>飲食偏好：</span><?php echo $Food_Preference; ?></div>
-                        <div><span>衣服尺寸：</span><?php echo $T_Shirt_Size; ?></div>
-                        <div><span>危及生命的過敏症：</span><?php echo $Life_threatening_allergy; ?></div>
-                        <div><span>身心障礙輔具需求：</span><?php echo $Accessibility_needs; ?></div>
+                        <p>請將此畫面交給工作人員進行簽到。Please show this to the staff for check-in.</p>
+                        <div><span>持有人 / Ticket Owner</span><?php echo $holder; ?></div>
+                        <div><span>購票人 / Ticket Purchased By</span><?php echo $buyer; ?></div>
+                        <div><span>票種 / Ticket Type</span><?php echo $Ticket_Type; ?></div>
+                        <?php if( $Coupon ) : ?>
+                            <div><span>優惠券 / Coupon</span><?php echo $Coupon; ?></div>
+                        <?php endif; ?>
+                        <div><span>溝通語言 / Language Spoken</span><?php echo $Language; ?></div>
+                        <div><span>國家 / Country</span><?php echo $Country; ?></div>
+                        <div><span>危及生命的過敏症 / Life-threatening Allergy</span><?php echo $Life_Threatening_Allergy; ?></div>
+                        <div><span>身心障礙輔助需求 / Accessibility Needs </span><?php echo $Accessibility_Needs; ?></div>
+                        <div><span>飲食偏好 / Meal Preference</span><?php echo $Meal_Preference; ?></div>
+                        <?php if( $T_Shirt_Size ) : ?>
+                            <div><span>衣服尺寸 / T-shirt Size</span><?php echo $T_Shirt_Size; ?></div>
+                        <?php endif; ?>
+                        <div><span>交流派對 / After Party</span><?php echo $After_Party; ?></div>
                         <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="POST" id="checkin">
                             <input type="hidden" name="email" value="<?php echo $resp["E-mail Address"]; ?>">
                             <input type="hidden" name="username" value="<?php echo $holder; ?>">
@@ -206,7 +221,7 @@ function complete_registration()
                         </form>
                         <script type="text/javascript">
                           function checkin_confirm() {
-                            if (confirm("你是工作人員嗎？不是請勿自行簽到，以免影響報到權益。Are you staff? Don't do this without confirm from staff or you will not allow to check-in.")) {
+                            if (confirm("你是工作人員嗎？不是請勿自行簽到，以免影響報到權益。Are you a staff? Do not check-in on your own. Double check-in is not allowed.")) {
                               document.getElementById("checkin").submit();
                             }
                           }
@@ -215,9 +230,9 @@ function complete_registration()
 
                     <?php
                     if (date('Y-m-d H:i') >= get_option('checkin_at')): ?>
-                        <button class="checkin_go" onclick="checkin_confirm();">簽到 / Checkin</button>
+                        <button class="checkin_go" onclick="checkin_confirm();">簽到 / Check-in</button>
                     <?php else: ?>
-                        <button type="button" class="checkin_go" disabled>尚未開放簽到 / Can't Checkin yet</button>
+                        <p>開放簽到時間 / Check-in Opens at<br><?php echo get_option('checkin_at'); ?></p>
                     <?php endif; ?>
 
                 </div>
@@ -228,13 +243,13 @@ function complete_registration()
         case 'update':
             //檢查是否已簽到
             if (!get_option('url')) {
-                alert("無法簽到，請與系統管理員聯繫！");
+                alert("無法簽到，請與系統管理員聯繫！Cannot check-in. Please contact system admin.");
             }
 
             if (file_exists(__DIR__ . '/log/' . $_POST['wctpe_checkin_id'] . "-" . $_POST['email'] . ".log")) {
-                alert("注意！" . $_POST['wctpe_checkin_id'] . " " . $_POST['username'] . " 已重複簽到！");
+                alert("注意！已重複簽到。Warning! Double check-in. [" . $_POST['wctpe_checkin_id'] . " " . $_POST['username'] . "]");
             } else {
-                alert($_POST['wctpe_checkin_id'] . " " . $_POST['username'] . " 已完成簽到！");
+                alert("[" . $_POST['wctpe_checkin_id'] . " " . $_POST['username'] . "] 已完成簽到！Check-in Complete.");
             }
 
             $url = get_option('url') . '&wctpe_checkin_id=' . $_POST['wctpe_checkin_id'];
@@ -283,6 +298,7 @@ function custom_registration_function()
 // The callback function that will replace [book]
 function wctpe_checkin_shortcode()
 {
+    wp_enqueue_style( 'wctpe-checkin', plugin_dir_url( __FILE__ ) . 'wctpe-checkin.css' );
     ob_start();
     custom_registration_function();
 
