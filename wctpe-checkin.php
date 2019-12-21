@@ -14,6 +14,8 @@
  * Domain Path:       /languages
  */
 
+date_default_timezone_set("Asia/Taipei");
+
 add_action('admin_menu', 'wctpe_checkin_setup_menu');
 
 function wctpe_checkin_setup_menu()
@@ -30,7 +32,7 @@ function wctpe_checkin_init()
     <!-- Form to handle the upload - The enctype value here is very important -->
     <p>Please visit your official WordCamp site.<br>Go to Tickets ➞ Tools ➞ Export ➞ Export all attendees data to <strong>CSV</strong> file. </p>
     <form method="post" enctype="multipart/form-data">
-        <input type='file' id='wctpe_checkin_upload_pdf' name='wctpe_checkin_upload_pdf'/>
+        <input type='file' id='wctpe_checkin_upload_pdf' name='wctpe_checkin_upload_pdf' required/>
         <?php submit_button('Upload') ?>
     </form>
     <form method="post" action="options.php">
@@ -39,19 +41,19 @@ function wctpe_checkin_init()
         <table>
             <tr valign="top">
                 <th scope="row"><label for="url">WordCamp Secret Link</label></th>
-                <td><input type="url" id="url" name="url" value="<?php echo get_option('url'); ?>"/></td>
+                <td><input type="url" id="url" name="url" value="<?php echo get_option('url'); ?>" required/></td>
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="file">Attendee Data File Name</label></th>
-                <td><input type="text" id="file" name="file" value="<?php echo get_option('file'); ?>"/><p>File name not including full URL. (ex. camptix-export-2020-01-01.csv)</p></td>
+                <td><input type="text" id="file" name="file" value="<?php echo get_option('file'); ?>" required/><p>File name not including full URL. (ex. camptix-export-2020-01-01.csv)</p></td>
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="checkin_at">Check-in Starting at</label></th>
-                <td><input type="text" id="checkin_at" name="checkin_at" value="<?php echo get_option('checkin_at'); ?>"/><p>Format：Y-m-d H:i (ex. 2020-01-01 09:00)</p></td>
+                <td><input type="text" id="checkin_at" name="checkin_at" value="<?php echo get_option('checkin_at'); ?>" required/><p>Format：Y-m-d H:i (ex. 2020-01-01 09:00)</p></td>
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="redirect">Success Check-in Redirect URL</label></th>
-                <td><input type="url" id="redirect" name="redirect" value="<?php echo get_option('redirect'); ?>"/></td>
+                <td><input type="url" id="redirect" name="redirect" value="<?php echo get_option('redirect'); ?>" required/></td>
             </tr>
         </table>
         <?php submit_button(); ?>
@@ -111,12 +113,12 @@ function registration_form()
     <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
         <div>
             <label for="username">購票姓氏 / Last Name</label>
-            <input type="text" name="username" value="" placeholder="Last Name">
+            <input type="text" name="username" value="" placeholder="Last Name" required>
         </div>
 
         <div>
             <label for="email">購票信箱 / Email</label>
-            <input type="email" name="email" value="" placeholder="Email">
+            <input type="email" name="email" value="" placeholder="Email" required>
         </div>
 
         <input type="hidden" name="action" value="search"/>
