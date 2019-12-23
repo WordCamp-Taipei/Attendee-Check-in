@@ -3,11 +3,11 @@
  * Plugin Name:       WCTPE Check-in
  * Plugin URI:        https://wctpe.tw/
  * Description:       WordCamp Taipei Check-in Tool
- * Version:           1.10.3
+ * Version:           1.0.0
  * Requires at least: 5.2
  * Requires PHP:      7.3
- * Author:            Bruce Lee
- * Author URI:        https://author.example.com/
+ * Author:            Bruce Lee, Yuli Yang
+ * Author URI:        https://2019.taipei.wordcamp.org/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       wctpe-checkin
