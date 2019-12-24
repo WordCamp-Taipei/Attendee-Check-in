@@ -45,11 +45,13 @@ function wctpe_checkin_init()
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="file">Attendee Data File Name</label></th>
-                <td><input type="text" id="file" name="file" value="<?php echo get_option('file'); ?>" required/><p>File name not including full URL. (ex. camptix-export-2020-01-01.csv)</p></td>
+                <td><input type="text" id="file" name="file" value="<?php echo get_option('file'); ?>" required/>
+                    <p>File name not including full URL. (ex. camptix-export-2020-01-01.csv)</p></td>
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="checkin_at">Check-in Starting at</label></th>
-                <td><input type="text" id="checkin_at" name="checkin_at" value="<?php echo get_option('checkin_at'); ?>" required/><p>Format：Y-m-d H:i (ex. 2020-01-01 09:00)</p></td>
+                <td><input type="text" id="checkin_at" name="checkin_at" value="<?php echo get_option('checkin_at'); ?>" required/>
+                    <p>Format：Y-m-d H:i (ex. 2020-01-01 09:00)</p></td>
             </tr>
             <tr valign="top">
                 <th scope="row"><label for="redirect">Success Check-in Redirect URL</label></th>
@@ -134,11 +136,21 @@ function parsing_hdata($filename)
     $csv  = array_map("str_getcsv", file($filename, FILE_SKIP_EMPTY_LINES));
     $keys = array_shift($csv);
 
-    foreach ($csv as $i => $row) {
-        $csv[$i] = array_combine($keys, $row);
+    $data = [];
+
+    foreach ($csv as $row) {
+        $tmp = [];
+
+        foreach ($keys as $i => $key) {
+            if (!isset($tmp[$key])) {
+                $tmp[$key] = $row[$i];
+            }
+        }
+
+        $data[] = $tmp;
     }
 
-    return $csv;
+    return $data;
 }
 
 function alert($str)
@@ -178,8 +190,8 @@ function complete_registration()
 
             if ($resp === 0) {
                 echo "<script>
-		alert('查無此人，請輸入票券註冊時正確的姓氏與信箱。Cannot find your ticket information. Please make sure you enter the last name and email you used to purchase the ticket.');
-		</script>";
+                alert('查無此人，請輸入票券註冊時正確的姓氏與信箱。Cannot find your ticket information. Please make sure you enter the last name and email you used to purchase the ticket.');
+                </script>";
 
                 registration_form();
             } else {
@@ -203,7 +215,7 @@ function complete_registration()
                         <div><span>持有人 / Ticket Owner</span><?php echo $holder; ?></div>
                         <div><span>購票人 / Ticket Purchased By</span><?php echo $buyer; ?></div>
                         <div><span>票種 / Ticket Type</span><?php echo $Ticket_Type; ?></div>
-                        <?php if( $Coupon ) : ?>
+                        <?php if ($Coupon) : ?>
                             <div><span>優惠券 / Coupon</span><?php echo $Coupon; ?></div>
                         <?php endif; ?>
                         <div><span>溝通語言 / Language Spoken</span><?php echo $Language; ?></div>
@@ -211,7 +223,7 @@ function complete_registration()
                         <div><span>危及生命的過敏症 / Life-threatening Allergy</span><?php echo $Life_Threatening_Allergy; ?></div>
                         <div><span>身心障礙輔助需求 / Accessibility Needs </span><?php echo $Accessibility_Needs; ?></div>
                         <div><span>飲食偏好 / Meal Preference</span><?php echo $Meal_Preference; ?></div>
-                        <?php if( $T_Shirt_Size ) : ?>
+                        <?php if ($T_Shirt_Size) : ?>
                             <div><span>衣服尺寸 / T-shirt Size</span><?php echo $T_Shirt_Size; ?></div>
                         <?php endif; ?>
                         <div><span>交流派對 / After Party</span><?php echo $After_Party; ?></div>
@@ -300,7 +312,7 @@ function custom_registration_function()
 // The callback function that will replace [book]
 function wctpe_checkin_shortcode()
 {
-    wp_enqueue_style( 'wctpe-checkin', plugin_dir_url( __FILE__ ) . 'wctpe-checkin.css' );
+    wp_enqueue_style('wctpe-checkin', plugin_dir_url(__FILE__) . 'wctpe-checkin.css');
     ob_start();
     custom_registration_function();
 
