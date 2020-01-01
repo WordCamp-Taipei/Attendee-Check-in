@@ -262,31 +262,20 @@ function complete_registration()
 
             if (file_exists(__DIR__ . '/log/' . $_POST['wctpe_checkin_id'] . "-" . $_POST['email'] . ".log")) {
                 alert("注意！已重複簽到。Warning! Double check-in. [" . $_POST['wctpe_checkin_id'] . " " . $_POST['username'] . "]");
-            } else {
-                alert("[" . $_POST['wctpe_checkin_id'] . " " . $_POST['username'] . "] 已完成簽到！Check-in Complete.");
             }
 
             $url = get_option('url') . '&wctpe_checkin_id=' . $_POST['wctpe_checkin_id'];
 
-            $ch = curl_init();
+            $output = wp_remote_post($url);
 
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36");
-
-            $output = curl_exec($ch);
-
-            curl_close($ch);
-
-            $r = json_decode($output, true);
-
-            if ($r['success']) {
+            if ($output['response']['message'] === 'OK') {
                 if (!is_dir(__DIR__ . '/log')) {
                     mkdir(__DIR__ . '/log');
                 }
 
                 file_put_contents(__DIR__ . '/log/' . $_POST['wctpe_checkin_id'] . "-" . $_POST['email'] . ".log", $output);
+
+                alert("[" . $_POST['wctpe_checkin_id'] . " " . $_POST['username'] . "] 已完成簽到！Check-in Complete.");
             }
 
             break;
