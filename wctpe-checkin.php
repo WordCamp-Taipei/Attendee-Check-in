@@ -24,6 +24,7 @@ function wctpe_checkin_setup_menu()
 function wctpe_checkin_init()
 {
     wctpe_checkin_handle_post();
+    wctpe_checkin_update();
     ?>
     <h1>WCTPE Check-in Tool</h1>
     <h2>Upload Attendee Data</h2>
@@ -58,6 +59,10 @@ function wctpe_checkin_init()
         </table>
         <?php submit_button(); ?>
     </form>
+    <form method="post" enctype="multipart/form-data">
+        <input type='hidden' id='wctpe_checkin_update' name='wctpe_checkin_update' value="true"/>
+        <?php submit_button('名單同步') ?>
+    </form>
     <?php
 }
 
@@ -91,6 +96,28 @@ function wctpe_checkin_handle_post()
         } else {
             echo "<div class='notice notice-success is-dismissible'><p><strong>File uploaded successfully!</strong></p></div>";
         }
+    }
+}
+
+function wctpe_checkin_update()
+{
+    // First check if the file appears on the _FILES array
+    if ($_POST['wctpe_checkin_update']) {
+        $files = list_files(__DIR__ . '/log/');
+
+        foreach ($files as $file) {
+            $filename = wp_basename($file);
+
+            $wctpe_checkin_id = explode('-', $filename)[0];
+
+            $url = get_option('url') . '&wctpe_checkin_id=' . $wctpe_checkin_id;
+
+            $output = wp_remote_post($url);
+        }
+
+        echo "<script>
+                alert('名單同步完畢');
+                </script>";
     }
 }
 
