@@ -14,8 +14,6 @@
  * Domain Path:       /languages
  */
 
-date_default_timezone_set(get_option('timezone_string'));
-
 add_action('admin_menu', 'wctpe_checkin_setup_menu');
 
 function wctpe_checkin_setup_menu()
